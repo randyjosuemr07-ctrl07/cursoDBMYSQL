@@ -5,33 +5,36 @@ USE SaludTotal;
 
 -------------------------------------------------
 -- TABLA Medicinas
+SELECT * FROM Medicinas;
 -------------------------------------------------
 CREATE TABLE IF NOT EXISTS Medicinas (
     id INT PRIMARY KEY,
     nombre VARCHAR(100),
-    tipo CHAR(3),           -- GEN o COM
+    tipo CHAR(3),   -- GEN o COM
     precio DECIMAL(15,2),
     stock INT,
     fechacaducidad DATETIME
 );
-
--------------------------------------------------
--- TABLA Clientes
--------------------------------------------------
-CREATE TABLE IF NOT EXISTS Clientes (
-    cedula VARCHAR(13) PRIMARY KEY,
-    nombre VARCHAR(100),
-    fecha_nacimiento CHAR(10), 
-    persona_tipo CHAR(3)       -- NAT o JUR
+--Uso de not null 
+alter table Medicinas
+Modify column nombre varchar (100) NOT NULL;
+---Añadir default
+ALTER TABLE Medicinas
+MODIFY tipo CHAR(3) DEFAULT 'GEN';
+--Verificacion solo se ingresan los valores que usamos GEN Y COM
+alter table Medicinas
+add constraint medicinas_tipo_val
+check (
+    tipo in ('GEN', 'COM')
 );
-
--- Datos de ejemplo clientes 
-INSERT INTO Clientes (cedula, nombre, fecha_nacimiento, persona_tipo)
+---Nombre unico usando Unique 
+alter table Medicinas
+add constraint nombre_uq
+UNIQUE (nombre);
+--Comprobacion del uso default
+INSERT INTO Medicinas (id, nombre, precio, stock, fechacaducidad)
 VALUES
-('15464546553', 'Jose', '14-06-1985', 'NAT'),
-('51505505', 'Mario', '04-08-1995', 'NAT'),
-('1800000002', 'Paul', '22-06-2005', 'NAT');
-
+(5, 'aspirina', 1.80, 25, '2027-06-15 00:00:00');
 -------------------------------------------------
 -- INSERTAR MEDICINAS
 -------------------------------------------------
@@ -42,6 +45,40 @@ VALUES
 (3, 'penicilina',  'GEN', 3.50, 12, '2026-08-24 00:00:00'),
 (4, 'ibuprofeno',  'COM', 2.20, 40, '2027-01-01 00:00:00');
 
+-------------------------------------------------
+-- TABLA Clientes
+SELECT * FROM Clientes;
+-------------------------------------------------
+CREATE TABLE IF NOT EXISTS Clientes (
+    cedula VARCHAR(13) PRIMARY KEY,
+    nombre VARCHAR(100),
+    fecha_nacimiento CHAR(10), 
+    persona_tipo CHAR(3)       -- NAT o JUR
+);
+---Add email
+ALTER TABLE Clientes
+ADD email VARCHAR(100);
+-- Datos de ejemplo clientes 
+INSERT INTO Clientes (cedula, nombre, fecha_nacimiento, persona_tipo)
+VALUES
+('15464546553', 'Jose', '14-06-1985', 'NAT'),
+('51505505', 'Mario', '04-08-1995', 'NAT'),
+('1800000002', 'Paul', '22-06-2005', 'NAT');
+--Actualizar Registros 
+UPDATE Clientes
+SET email = 'jose@gmail.com'
+WHERE cedula = '15464546553';
+UPDATE Clientes
+SET email = 'mario@gmail.com'
+WHERE cedula = '51505505';
+UPDATE Clientes
+SET email = 'paul@gmail.com'
+WHERE cedula = '1800000002';
+---Atributo Email unico en tabla cliente
+alter table Clientes
+add constraint cliente_emailuq
+unique (email);
+-------------------------------------------------
 -------------------------------------------------
 -- TABLA Descuentos
 -------------------------------------------------
