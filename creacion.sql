@@ -226,7 +226,8 @@ SELECT * FROM Empresa;
 SELECT * FROM Factura;
 SELECT * FROM Detalle_Factura;
 SELECT * FROM Pagos;
-
+SELECT * FROM Proveedor;
+SELECT * FROM Proveedor_Medicina;
 
 ---
 -- ALTER TABLE Cliente_Medicina
@@ -239,3 +240,46 @@ SELECT * FROM Pagos;
 -- FOREIGN KEY (medicina_id)
 -- REFERENCES Medicinas(id);
 ---ACTUALIZAR TOTALES DE FACTURAS
+-------------------------------------------------
+-- TABLA Proveedor 
+-------------------------------------------------
+CREATE TABLE IF NOT EXISTS Proveedor (
+    ruc CHAR(13) PRIMARY KEY,
+    nombre VARCHAR(100),
+    contacto VARCHAR(50),
+    email VARCHAR(50)
+);
+
+----Inserciones Proveedor (ruc, nombre, contacto, email)
+INSERT INTO Proveedor (ruc, nombre, contacto, email)
+VALUES ('1799999999001', 'BAYER SA', 'Carlos Pérez', 'contacto@bayer.com');
+
+
+-------------------------------------------------
+-- TABLA Proveedor_Medicina
+-------------------------------------------------
+CREATE TABLE IF NOT EXISTS Proveedor_Medicina (
+    proveedor_ruc CHAR(13),
+    medicina_id INT,
+    proveedor_precio DECIMAL(10,2),
+    lote INT,
+    plazo VARCHAR(50),
+
+    PRIMARY KEY (proveedor_ruc, medicina_id),
+
+    CONSTRAINT fk_pm_proveedor
+        FOREIGN KEY (proveedor_ruc) REFERENCES Proveedor(ruc),
+
+    CONSTRAINT fk_pm_medicina
+        FOREIGN KEY (medicina_id) REFERENCES Medicinas(id)
+);
+
+----INSERCIONES Proveedor_Medicina
+INSERT INTO Proveedor_Medicina
+(proveedor_ruc, medicina_id, proveedor_precio, lote, plazo)
+VALUES
+('1799999999001', 1, 0.25, 100, '15 días');
+
+
+
+
