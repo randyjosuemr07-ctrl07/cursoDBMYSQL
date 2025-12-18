@@ -264,9 +264,61 @@ CREATE TABLE IF NOT EXISTS Cliente_Medicina (
     CONSTRAINT fk_cm_cliente FOREIGN KEY (cliente_cedula) REFERENCES Clientes(cedula),
     CONSTRAINT fk_cm_medicina FOREIGN KEY (medicina_id) REFERENCES Medicinas(id)
 );
-
+--INSERTS MEDICINA FRECUENTE
 INSERT INTO Cliente_Medicina (cliente_cedula, medicina_id, condicion, frecuencia, descuento)
 VALUES ('15464546553', 1, 'diabetes', 'SEM', 0.25);
+
+INSERT INTO Cliente_Medicina (cliente_cedula, medicina_id, condicion, frecuencia, descuento) VALUES
+('4254475496', 11, 'diabetes', 'DIA', 0.25),        -- metformina
+('7892586064', 12, 'hipertensión', 'DIA', 0.20),    -- losartan
+('7213424104', 13, 'hipertensión', 'DIA', 0.22),    -- amlodipino
+('9783197330', 14, 'colesterol alto', 'DIA', 0.18), -- atorvastatina
+('7903762770', 15, 'colesterol alto', 'DIA', 0.17), -- simvastatina
+('1754110338', 20, 'asma', 'DIA', 0.15),            -- salbutamol
+('1936002916', 9,  'alergias', 'DIA', 0.10),        -- loratadina
+('4353090950', 10, 'alergias', 'DIA', 0.10),        -- cetirizina
+('6591304842', 27, 'gastritis/reflujo', 'DIA', 0.16), -- omeprazol 20mg
+('6828641798', 28, 'gastritis', 'DIA', 0.12),       -- ranitidina
+('4626348989', 32, 'gastritis/reflujo', 'DIA', 0.18), -- omeprazol 40mg
+('1138457210', 51, 'gastritis/reflujo', 'DIA', 0.20), -- pantoprazol
+('6529067996', 52, 'gastritis/reflujo', 'DIA', 0.19), -- esomeprazol
+('7059150369', 16, 'inflamación', 'SEM', 0.12),     -- dexametasona
+('6166332414', 43, 'ansiedad', 'DIA', 0.15),        -- lorazepam
+('8021379270', 46, 'depresión', 'DIA', 0.20),       -- sertralina
+('5158849661', 44, 'ansiedad', 'DIA', 0.14),        -- diazepam
+('4491293600', 21, 'tos', 'DIA', 0.08),             -- ambroxol
+('4397883234', 22, 'tos', 'DIA', 0.08),             -- bromhexina
+('5077312137', 33, 'infección', 'DIA', 0.12),       -- cefadroxilo
+('4458155431', 34, 'infección', 'DIA', 0.15),       -- ceftriaxona
+('3791111884', 35, 'infección', 'DIA', 0.11),       -- metronidazol
+('7164437424', 7,  'dolor/inflamación', 'DIA', 0.10), -- diclofenaco
+('7197177304', 8,  'dolor/inflamación', 'DIA', 0.10), -- naproxeno
+('5734768979', 19, 'dolor agudo', 'DIA', 0.12),     -- ketorolaco
+('5785524334', 1,  'fiebre/dolor', 'DIA', 0.08),    -- paracetamol
+('9979102292', 4,  'dolor/inflamación', 'DIA', 0.09), -- ibuprofeno
+('6570550426', 12, 'hipertensión', 'DIA', 0.21),    -- losartan
+('6709151644', 11, 'diabetes', 'DIA', 0.25),        -- metformina
+('3903959333', 14, 'colesterol alto', 'DIA', 0.18), -- atorvastatina
+('6435079973', 15, 'colesterol alto', 'DIA', 0.17), -- simvastatina
+('8256156392', 29, 'deshidratación', 'DIA', 0.06),  -- suero oral
+('4687393968', 30, 'inmunidad', 'DIA', 0.05),       -- vitamina c
+('7462018978', 31, 'fatiga', 'DIA', 0.07),          -- multivitamínico
+('1328910130', 41, 'dolor muscular', 'SEM', 0.10),  -- diclofenaco gel
+('2184948256', 47, 'gastritis/reflujo', 'DIA', 0.16), -- omeprazol tbl
+('3686086080', 37, 'gastritis/reflujo', 'DIA', 0.15), -- omeprazol caps
+('8196415424', 42, 'gastritis/reflujo', 'DIA', 0.15), -- omeprazol susp
+('2197812876', 48, 'hipertensión', 'DIA', 0.18),    -- hidroclorotiazida
+('4487934153', 49, 'hipertensión', 'DIA', 0.19),    -- enalapril
+('8452260877', 50, 'retención de líquidos', 'DIA', 0.14), -- furosemida
+('8169723952', 91, 'dolor/fiebre', 'DIA', 0.08),    -- aspirinag (aspirina)
+('4076588972', 92, 'hipertensión', 'DIA', 0.18),    -- carvedilol
+('8064007774', 93, 'hipertensión', 'DIA', 0.18),    -- bisoprolol
+('9115691003', 94, 'taquicardia', 'DIA', 0.17),     -- propranolol
+('1545092175', 95, 'hipertensión', 'DIA', 0.17),    -- atenolol
+('8729551629', 96, 'arritmia', 'DIA', 0.16),        -- verapamilo
+('1859270323', 97, 'arritmia', 'DIA', 0.16),        -- diltiazem
+('3849036457', 99, 'hipertensión', 'DIA', 0.15),    -- espironolactona
+('2549378583', 100,'hipertensión', 'DIA', 0);
 
 -------------------------------------------------
 -- TABLA Medicinas_Tipo_ID
@@ -279,13 +331,11 @@ CREATE TABLE IF NOT EXISTS Medicinas_Tipo_ID (
     CONSTRAINT fk_mtid_com FOREIGN KEY (medicina_id_com) REFERENCES Medicinas(id)
 );
 
--- GEN
 INSERT INTO Medicinas_Tipo_ID (medicina_id_gen, medicina_id_com)
-SELECT id, NULL FROM Medicinas WHERE tipo = 'GEN';
-
--- COM
-INSERT INTO Medicinas_Tipo_ID (medicina_id_gen, medicina_id_com)
-SELECT NULL, id FROM Medicinas WHERE tipo = 'COM';
+VALUES
+(23, 30),  -- acetaminofen GEN ↔ vitamina C COM
+(7, 4),    -- diclofenaco GEN ↔ ibuprofeno COM
+(11, 14);  -- metformina GEN ↔ atorvastatina COM
 
 -------------------------------------------------
 -- TABLA EMPRESA
@@ -420,6 +470,7 @@ SELECT * FROM Detalle_Factura;
 SELECT * FROM Pagos;
 SELECT * FROM Proveedor;
 SELECT * FROM Proveedor_Medicina;
+SELECT * FROM Cliente_Medicina;
 
 ---
 -- ALTER TABLE Cliente_Medicina
