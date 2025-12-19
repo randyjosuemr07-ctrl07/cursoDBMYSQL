@@ -355,10 +355,21 @@ VALUES ('1452637890478', 'Salud Total SA', 'Av 10 de Agosto', '096154544', 'jose
 INSERT INTO Empresa (ruc, razon_social, direccion, telefono, email)
 VALUES ('1423698502001', 'LIFE SA', 'Inaquito', '096154714', 'elche@gmail.com');
 
+INSERT INTO Empresa (ruc, razon_social, direccion, telefono, email)
+VALUES
+('0999999999001', 'Farmacia Central',    'La Carolina',         '0987456321', 'central@gmail.com'),
+('0999999999002', 'Medisalud Cia Ltda',  'Chillogallo',         '0974563214', 'medisalud@gmail.com'),
+('0999999999003', 'Vida Sana SA',        'El Inca',             '0963214785', 'vidasana@gmail.com'),
+('0999999999004', 'Pharma Plus',         'La Mariscal',         '0958741236', 'pharmaplus@gmail.com'),
+('0999999999005', 'Clinifarma',          'Carcelén',            '0945612387', 'clinifarma@gmail.com'),
+('0999999999006', 'Salud y Vida',        'Cotocollao',          '0932145879', 'saludyvida@gmail.com'),
+('0999999999007', 'Medic Farma',         'San Carlos',          '0921458796', 'medicfarma@gmail.com'),
+('0999999999008', 'Farmared SA',         'Ponceano',            '0912547896', 'farmared@gmail.com');
+
 -------------------------------------------------
 -- TABLAS DE FACTURACIÓN
 -------------------------------------------------
-
+select * from factura;
 -- Factura cabecera (con empresa_ruc añadido)
 CREATE TABLE IF NOT EXISTS Factura (
     factura_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -416,6 +427,17 @@ VALUES ('1800000002', '1452637890478', 0);  -- factura_id = 3
 
 INSERT INTO Factura (cliente_cedula, empresa_ruc, total)
 VALUES ('1800000002', '1423698502001', 0);  -- factura_id = 4
+INSERT INTO Factura (cliente_cedula, empresa_ruc, total) VALUES
+('15464546553', '1452637890478', 0), -- 
+('51505505',     '1452637890478', 0), -- 
+('1800000002',   '1452637890478', 0), -- 
+('1800000002',   '1423698502001', 0), -- 
+('15464546553', '1423698502001', 0), -- 
+('51505505',     '1452637890478', 0), -- 
+('1800000002',   '1452637890478', 0), -- 
+('15464546553', '1452637890478', 0), -- 
+('51505505',     '1423698502001', 0), -- 
+('1800000002',   '1423698502001', 0); -- 
 
 -------------------------------------------------
 -- 2. Insertar detalle de facturas
@@ -435,6 +457,30 @@ VALUES (3, 3, 3, 3.50, 10.50);
 -- Si quieres que la factura 4 tenga detalles:
 INSERT INTO Detalle_Factura (factura_id, medicina_id, cantidad, precio_unitario, subtotal)
 VALUES (4, 1, 1, 1.50, 1.50);
+INSERT INTO Detalle_Factura (factura_id, medicina_id, cantidad, precio_unitario, subtotal) VALUES
+(1, 1, 2, 1.50, 3.00),
+(1, 4, 1, 3.50, 3.50),
+(2, 2, 1, 2.60, 2.60),
+(3, 3, 3, 3.50, 10.50),
+(4, 1, 1, 1.50, 1.50),
+(5, 4, 2, 3.50, 7.00),
+(6, 2, 2, 2.60, 5.20),
+(7, 3, 1, 3.50, 3.50),
+(8, 1, 4, 1.50, 6.00),
+(9, 4, 1, 3.50, 3.50);
+INSERT INTO Detalle_Factura (factura_id, medicina_id, cantidad, precio_unitario, subtotal)
+VALUES
+(10, 1, 2, 1.50, 3.00),
+(10, 4, 1, 3.50, 3.50),
+(11, 2, 1, 2.60, 2.60),
+(11, 7, 2, 2.10, 4.20),
+(12, 3, 3, 3.50, 10.50),
+-- Factura 13
+(13, 11, 1, 3.00, 3.00),
+(13, 12, 1, 3.50, 3.50),
+-- Factura 14
+(14, 1, 2, 1.50, 3.00),
+(14, 4, 1, 3.50, 3.50);
 
 -------------------------------------------------
 -- 3. Insertar pagos
@@ -450,6 +496,26 @@ VALUES (3, 'TRANSFERENCIA', 10.50);
 
 INSERT INTO Pagos (factura_id, metodo_pago, monto)
 VALUES (4, 'EFECTIVO', 1.50); -- Ahora corresponde al detalle agregado
+
+INSERT INTO Pagos (factura_id, metodo_pago, monto) VALUES
+(1, 'EFECTIVO', 6.50),
+(2, 'TARJETA', 2.60),
+(3, 'TRANSFERENCIA', 10.50),
+(4, 'EFECTIVO', 1.50),
+(5, 'EFECTIVO', 7.00),
+(6, 'TARJETA', 5.20),
+(7, 'EFECTIVO', 3.50),
+(8, 'TRANSFERENCIA', 6.00),
+(9, 'EFECTIVO', 3.50),
+(10, 'TARJETA', 0.00);
+
+INSERT INTO Pagos (factura_id, metodo_pago, monto)
+VALUES
+(10, 'EFECTIVO', 6.50),
+(11, 'TARJETA', 6.80),
+(12, 'TRANSFERENCIA', 10.50),
+(13, 'EFECTIVO', 6.50),
+(14, 'EFECTIVO', 6.50);
 
 -------------------------------------------------
 -- 4. Actualizar totales de facturas
@@ -522,7 +588,3 @@ INSERT INTO Proveedor_Medicina
 (proveedor_ruc, medicina_id, proveedor_precio, lote, plazo)
 VALUES
 ('1799999999001', 1, 0.25, 100, '15 días');
-
-
-
-
