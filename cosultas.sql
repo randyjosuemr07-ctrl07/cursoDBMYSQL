@@ -103,4 +103,84 @@ FROM Medicinas_Tipo_ID mti
 LEFT JOIN Medicinas gen ON gen.id = mti.medicina_id_gen
 LEFT JOIN Medicinas com ON com.id = mti.medicina_id_com
 WHERE 4 IN (mti.medicina_id_gen, mti.medicina_id_com);
-
+--Crear combinaciones con todas las combinaciones entre 
+--Tabla clientes y tabla medicina frefcuente
+--Producto cartesiano
+select *
+FROM
+    clientes,
+    Cliente_Medicina
+WHERE
+    clientes.cedula = Cliente_Medicina.cliente_cedula;
+--Crear combinaciones con todas las combinaciones entre 
+--Tabla medicina y tabla medicina frefcuente
+--Producto cartesiano
+select *
+FROM
+    medicinas,
+    Cliente_Medicina
+WHERE
+    Medicinas.id = Cliente_Medicina.medicina_id;
+---Ejemplo
+---
+select 
+    c.cedula,
+    c.nombre,
+    m.nombre,
+    mf.descuento,
+    m.tipo
+FROM
+    cliente_medicina mf
+JOIN clientes c on c.cedula = mf.cliente_cedula
+JOIN medicinas m on m.id = mf.medicina_id
+WHERE
+    m.tipo = 'COM';
+----Para VER VERIFICAR LA MEDICINA Y SU TIPO 
+----
+SELECT 
+    mcom.id,
+    mcom.nombre,
+    mt.medicina_id_gen
+FROM 
+    Medicinas_Tipo_ID mt
+JOIN Medicinas mcom ON mcom.id = mt.medicina_id_com
+JOIN Medicinas mgen ON mgen.id = mt.medicina_id_gen;
+--Presentar una factura y su detalle que incluye 
+--Datos de Farcmacia:nombre, ruc , correo 
+--Datos de cliente: 
+--Datos de cabecera de factura: #, fecha
+--Medicinas vendidas: nombre, id, cantidad, precio, calculo subtotal
+--Al final: total y forma de pago
+--Usar datos ya existenetes
+--1.Cargar datos en facturas cabecera y detalle 
+--Datos del cliente + empresa + factura
+SELECT
+    f.factura_id,
+    f.fecha,
+    c.cedula,
+    c.nombre AS cliente,
+    e.ruc,
+    e.razon_social AS empresa
+FROM Factura f
+JOIN Clientes c ON c.cedula = f.cliente_cedula
+JOIN Empresa e ON e.ruc = f.empresa_ruc
+WHERE f.factura_id = 1;
+--2️.SELECT — Detalle de factura
+SELECT
+    m.id AS medicina_id,
+    m.nombre AS medicina,
+    d.cantidad,
+    d.precio_unitario,
+    d.subtotal
+FROM Detalle_Factura d
+JOIN Medicinas m ON m.id = d.medicina_id
+WHERE d.factura_id = 1;
+--3.SELECT — Pie de factura
+SELECT
+    f.factura_id,
+    f.total,
+    p.metodo_pago,
+    p.monto
+FROM Factura f
+JOIN Pagos p ON p.factura_id = f.factura_id
+WHERE f.factura_id = 6;
