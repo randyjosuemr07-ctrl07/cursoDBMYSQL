@@ -184,3 +184,77 @@ SELECT
 FROM Factura f
 JOIN Pagos p ON p.factura_id = f.factura_id
 WHERE f.factura_id = 6;
+--Medicina GEN más cara
+SELECT
+    id,
+    nombre,
+    tipo,
+    precio
+FROM Medicinas
+WHERE tipo = 'GEN'
+ORDER BY precio DESC
+LIMIT 1;
+--Medicina COM más barata
+SELECT
+    id,
+    nombre,
+    tipo,
+    precio
+FROM Medicinas
+WHERE tipo = 'COM'
+ORDER BY precio ASC
+LIMIT 1;
+--5 medicinas con menor descuento
+SELECT
+    medicina_id AS id,
+    (SELECT nombre FROM Medicinas WHERE id = medicina_id) AS medicina,
+    descuento
+FROM Cliente_Medicina
+ORDER BY descuento ASC
+LIMIT 5;
+--Busqueda medicinas
+SELECT DISTINCT
+    m.id,
+    m.nombre,
+    cm.descuento
+FROM Medicinas m
+JOIN Cliente_Medicina cm ON cm.medicina_id = m.id
+WHERE 
+    m.tipo = 'COM'
+ORDER BY 
+    cm.descuento ASC
+LIMIT 5;
+--
+SELECT *
+FROM Medicinas
+WHERE nombre LIKE '%paracetamol%';
+---
+select 
+    tipo,
+    sum(precio * stock)
+from medicinas 
+GROUP BY
+    tipo;
+--Factura detalle valor monetario x medicina vendida
+SELECT
+    medicina_id,
+    SUM(cantidad * precio_unitario) AS total_vendido
+FROM Detalle_Factura
+GROUP BY 
+    medicina_id
+ORDER BY 
+    medicina_id;
+--El mejor cliente 
+SELECT
+    c.cedula,
+    c.nombre,
+    SUM(df.cantidad * df.precio_unitario) AS total_gastado
+FROM Factura f
+JOIN Clientes c ON c.cedula = f.cliente_cedula
+JOIN Detalle_Factura df ON df.factura_id = f.factura_id
+GROUP BY
+    c.cedula,
+    c.nombre
+ORDER BY
+    total_gastado DESC
+LIMIT 1;
