@@ -539,16 +539,6 @@ SELECT * FROM Proveedor_Medicina;
 SELECT * FROM Cliente_Medicina;
 
 ---
--- ALTER TABLE Cliente_Medicina
--- ADD CONSTRAINT cliente_cedula_fk
--- FOREIGN KEY (cliente_cedula)
--- REFERENCES Clientes(cedula);
-
--- ALTER TABLE Cliente_Medicina
--- ADD CONSTRAINT medicina_id_fk
--- FOREIGN KEY (medicina_id)
--- REFERENCES Medicinas(id);
----ACTUALIZAR TOTALES DE FACTURAS
 -------------------------------------------------
 -- TABLA Proveedor 
 -------------------------------------------------
