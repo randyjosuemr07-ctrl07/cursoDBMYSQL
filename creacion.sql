@@ -578,3 +578,6 @@ INSERT INTO Proveedor_Medicina
 (proveedor_ruc, medicina_id, proveedor_precio, lote, plazo)
 VALUES
 ('1799999999001', 1, 0.25, 100, '15 días');
+------
+
+
