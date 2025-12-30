@@ -258,3 +258,275 @@ GROUP BY
 ORDER BY
     total_gastado DESC
 LIMIT 1;
+---------Union de consultas
+CREATE VIEW v_proyeccion_ventas AS
+SELECT            -- Medicinas con descuento
+    mf.medicina_id,
+    m.nombre,
+    m.precio,
+    m.stock,
+    mf.descuento,         
+    m.precio * (1 - mf.descuento / 100) AS nuevo_precio
+FROM Cliente_Medicina mf
+JOIN Medicinas m 
+    ON m.id = mf.medicina_id
+
+UNION
+
+SELECT          -- Medicinas sin descuento
+    m.id AS medicina_id,
+    m.nombre,
+    m.precio,
+    m.stock,
+    0 AS descuento,
+    m.precio AS nuevo_precio
+FROM Medicinas m
+LEFT JOIN Cliente_Medicina mf
+    ON m.id = mf.medicina_id
+WHERE mf.medicina_id IS NULL;
+--- proyeccion del create view
+SELECT  
+    sum(precio * stock)
+FROM
+    v_proyeccion_ventas;
+--================
+--Averiguar que medicinas vencen en el proximo mes 
+SELECT
+    id,
+    nombre,
+    fechacaducidad
+FROM Medicinas
+WHERE fechacaducidad >= CURDATE()
+    AND fechacaducidad < DATE_ADD(CURDATE(), INTERVAL 1 MONTH)
+
+UNION ALL
+
+SELECT
+    NULL AS id,
+    'NO HAY MEDICINAS QUE VENCAN EL PRÓXIMO MES' AS nombre,
+    NULL AS fechacaducidad
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Medicinas
+    WHERE fechacaducidad >= CURDATE()
+        AND fechacaducidad < DATE_ADD(CURDATE(), INTERVAL 1 MONTH)
+);
+
+--Ver fechas de vencimiento
+SELECT id, nombre, fechacaducidad
+FROM Medicinas;
+--Verificar cuantos años para llegar a esa fecha de caducidad
+SELECT
+    id,
+    nombre,
+    fechacaducidad
+FROM Medicinas
+WHERE fechacaducidad BETWEEN CURDATE()
+    AND DATE_ADD(CURDATE(), INTERVAL 2 YEAR);
+--Cronograma de medicina a 3 meses vista 
+SELECT
+    id,
+    nombre,
+    fechacaducidad
+FROM Medicinas
+WHERE fechacaducidad >= CURDATE()
+    AND fechacaducidad < DATE_ADD(CURDATE(), INTERVAL 3 MONTH)
+
+UNION ALL
+
+SELECT
+    NULL AS id,
+    'NO HAY MEDICINAS QUE VENCAN EN LOS PRÓXIMOS 3 MESES' AS nombre,
+    NULL AS fechacaducidad
+WHERE NOT EXISTS (
+    SELECT 1
+    FROM Medicinas
+    WHERE fechacaducidad >= CURDATE()
+        AND fechacaducidad < DATE_ADD(CURDATE(), INTERVAL 3 MONTH)
+)
+ORDER BY fechacaducidad;
+--Caso: Kardex de la farmacia 
+    --Movimientos de entrada y salida por medicina
+    --Stock inicial por periodo
+    --Compras, alta por inventario, donaciones, etc
+    --Ventas, bajas por inventario, vencimiento, etc
+--Resultado stock final
+--Metodo para valorar: promedio, fifo y lifo
+-- Ya NO creamos proveedor, asumimos que ya existe
+
+-- Crear ordencompra
+CREATE TABLE ordencompra(
+    numero INT PRIMARY KEY,
+    proveedor_ruc CHAR(13),
+    fecha DATE
+);
+
+-- Relación con la tabla proveedor existente
+ALTER TABLE ordencompra
+ADD CONSTRAINT ordencompra_proveedor_fk
+FOREIGN KEY (proveedor_ruc)
+REFERENCES proveedor(ruc);
+--INSERTS
+
+
+-- Crear detalle de orden de compra
+CREATE TABLE ordencompra_detalle(
+    ordennumero INT,
+    medicamento_id INT,
+    cantidad DECIMAL(15,2),
+    costo DECIMAL(15,2)
+);
+--INSERTS
+
+-- Primary Key compuesta
+ALTER TABLE ordencompra_detalle
+ADD PRIMARY KEY (ordennumero, medicamento_id);
+
+-- Relación con ordencompra
+ALTER TABLE ordencompra_detalle
+ADD CONSTRAINT ordencompra_detalle_orden_fk
+FOREIGN KEY (ordennumero)
+REFERENCES ordencompra(numero);
+
+-- Relación con medicinas (PARA VINCULAR EL KARDEX CON STOCK)
+ALTER TABLE ordencompra_detalle
+ADD CONSTRAINT ordencompra_detalle_medicina_fk
+FOREIGN KEY (medicamento_id)
+REFERENCES medicinas(id);
+-- Pruebas
+SELECT * FROM proveedor;
+SELECT * FROM ordencompra;
+SELECT * FROM ordencompra_detalle;
+---========
+CREATE TABLE IF NOT EXISTS Compras_Medicinas (
+    compra_id INT AUTO_INCREMENT PRIMARY KEY,
+    medicina_id INT,
+    fecha DATE,
+    cantidad INT,
+    costo_unitario DECIMAL(10,2),
+    FOREIGN KEY (medicina_id) REFERENCES Medicinas(id)
+);
+--==========
+--INSERTS
+-- Insertar proveedores (si no los tienes aún)
+INSERT INTO proveedor (ruc, nombre) VALUES
+('0999999999999', 'Proveedor A'),
+('0888888888888', 'Proveedor B');
+
+UPDATE proveedor
+SET ruc = '1799999999001'
+WHERE nombre = 'Bayer S.A.';
+UPDATE proveedor
+SET contacto = 'Ana López', email = 'contacto@proveedorb.com'
+WHERE ruc = '0888888888888';
+UPDATE proveedor
+SET contacto = 'Juan Pérez', email = 'contacto@bayersa.com'
+WHERE ruc = '0777777777777';
+SELECT * FROM proveedor;
+--=================
+CREATE OR REPLACE VIEW v_mov_ventas AS
+SELECT
+    d.medicina_id,
+    m.nombre AS medicina,
+    f.fecha,
+    d.cantidad AS salida,
+    0 AS entrada,              -- porque es venta
+    'VENTA' AS tipo_movimiento
+FROM Detalle_Factura d
+JOIN Factura f ON f.factura_id = d.factura_id
+JOIN Medicinas m ON m.id = d.medicina_id;
+
+CREATE OR REPLACE VIEW v_mov_compras AS
+SELECT
+    od.medicamento_id AS medicina_id,
+    m.nombre AS medicina,
+    oc.fecha,
+    0 AS salida,
+    od.cantidad AS entrada,
+    'COMPRA' AS tipo_movimiento
+FROM ordencompra_detalle od
+JOIN ordencompra oc ON oc.numero = od.ordennumero
+JOIN Medicinas m ON m.id = od.medicamento_id;
+
+SELECT 
+    od.medicamento_id AS medicina_id,
+    m.nombre AS medicina,
+    oc.fecha,
+    od.cantidad AS entrada,
+    0 AS salida,
+    'COMPRA' AS tipo_movimiento
+FROM ordencompra_detalle od
+JOIN ordencompra oc ON oc.numero = od.ordennumero
+JOIN medicinas m ON m.id = od.medicamento_id
+
+UNION ALL
+
+SELECT
+    d.medicina_id,
+    m.nombre AS medicina,
+    f.fecha,
+    0 AS entrada,
+    d.cantidad AS salida,
+    'VENTA' AS tipo_movimiento
+FROM detalle_factura d
+JOIN factura f ON f.factura_id = d.factura_id
+JOIN medicinas m ON m.id = d.medicina_id
+
+ORDER BY medicina_id, fecha;
+
+CREATE OR REPLACE VIEW v_kardex AS
+SELECT * FROM v_mov_compras
+UNION ALL
+SELECT * FROM v_mov_ventas
+ORDER BY medicina_id, fecha;
+SELECT * FROM v_kardex;
+----
+SELECT
+    tipo,
+    count (*)
+FROM
+    medicinas
+WHERE
+    precio < 5
+GROUP BY tipo;
+
+SELECT * from medicinas where precio < 5;
+--Caso: stock minimo
+--Stock de seguridad    
+--Dar disponibilidad
+create table control_stock(
+    medicina_id int,
+    stock_minimo int
+);
+
+alter table control_stock
+add PRIMARY KEY (medicina_id);
+
+alter table control_stock
+add constraint control_stok_medicina_id_fk
+FOREIGN KEY (medicina_id) 
+REFERENCES medicinas(id);
+
+insert into control_stock
+values(36,6);
+--
+SELECT
+*
+FROM
+v_kardex k
+join control_stock on cs.medicina_id = k.medicamento_id
+WHERE
+medicina_id=36
+and saldo < stock_minimo;
+
+SELECT  
+    count(*)
+FROM    
+    v_kardex
+group by medicina_id
+order by count (*) desc;
+
+select * from v_kardex where medicina_id=64
+
+update medicinas set stock =12 where id = 64;
+insert into control_stock values (64,15)
